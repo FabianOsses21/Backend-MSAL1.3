@@ -25,13 +25,23 @@ jobs:
         working-directory: backend-msal
         run: ./mvnw clean package
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Configure AWS Environment
+        run: |
+          mkdir -p ~/.aws
+          cat << 'EOF' > ~/.aws/credentials
+          [default]
+          aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token = ${{ secrets.AWS_SESSION_TOKEN }}
+          EOF
+
+          cat << 'EOF' > ~/.aws/config
+          [default]
+          region = ${{ secrets.AWS_REGION || 'us-east-1' }}
+          output = json
+          EOF
+
+          aws sts get-caller-identity
 
       - name: Upload JAR Artifact to Amazon S3
         run: |
