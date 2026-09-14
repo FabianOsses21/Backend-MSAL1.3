@@ -78,6 +78,13 @@ class TramiteControllerIntegrationTest {
                 .andExpect(jsonPath("$.asunto", is("Foco quemado frente al parque")))
                 .andExpect(jsonPath("$.estado", is("INGRESADO")))
                 .andExpect(jsonPath("$.propietarioNombre", is("Axel Moraga")));
+
+        // Verificación directa en base de datos JPA
+        org.junit.jupiter.api.Assertions.assertEquals(1, tramiteRepository.count());
+        Tramite guardado = tramiteRepository.findAll().get(0);
+        org.junit.jupiter.api.Assertions.assertEquals("Foco quemado frente al parque", guardado.getAsunto());
+        org.junit.jupiter.api.Assertions.assertEquals("user-uuid-1", guardado.getPropietarioId());
+        org.junit.jupiter.api.Assertions.assertEquals(EstadoTramite.INGRESADO, guardado.getEstado());
     }
 
     @Test
